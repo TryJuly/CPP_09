@@ -6,29 +6,33 @@
 /*   By: strieste <strieste@student.42.ch>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/30 09:19:12 by strieste          #+#    #+#             */
-/*   Updated: 2026/03/30 13:57:47 by strieste         ###   ########.fr       */
+/*   Updated: 2026/03/31 12:08:40 by strieste         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef BITCOINEXCHANGE_HPP
 # define BITCOINEXCHANGE_HPP
 
-# include <vector>
+# include <map>
 # include <string>
-# include <iostream>
 # include <fstream>
+// # include <iostream>
+// # include <cstdlib>
+// # include <algorithm>
 
 class BitcoinExchange
 {
 	public:
 		BitcoinExchange();
+		BitcoinExchange(std::string const &fileName);
 		BitcoinExchange(BitcoinExchange const &copy);
 		~BitcoinExchange();
 
 		BitcoinExchange&	operator=(BitcoinExchange const &copy);
+		float	getPrice(std::string const date);
 
 	private:
-		std::vector<std::string>	_container;
+		std::map<std::string, float>	_data;
 };
 
 #endif
