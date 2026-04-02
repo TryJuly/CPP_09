@@ -6,7 +6,7 @@
 /*   By: strieste <strieste@student.42.ch>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/30 09:19:12 by strieste          #+#    #+#             */
-/*   Updated: 2026/03/31 12:08:40 by strieste         ###   ########.fr       */
+/*   Updated: 2026/04/02 11:14:02 by strieste         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,9 @@
 # include <map>
 # include <string>
 # include <fstream>
+# include <cstdlib>
+# include <iostream>
 // # include <iostream>
-// # include <cstdlib>
 // # include <algorithm>
 
 class BitcoinExchange
@@ -29,7 +30,8 @@ class BitcoinExchange
 		~BitcoinExchange();
 
 		BitcoinExchange&	operator=(BitcoinExchange const &copy);
-		float	getPrice(std::string const date);
+
+		void	getPrice(std::string const &line);
 
 	private:
 		std::map<std::string, float>	_data;
