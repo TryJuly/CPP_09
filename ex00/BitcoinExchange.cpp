@@ -6,13 +6,13 @@
 /*   By: strieste <strieste@student.42.ch>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/30 10:57:12 by strieste          #+#    #+#             */
-/*   Updated: 2026/04/02 11:21:18 by strieste         ###   ########.fr       */
+/*   Updated: 2026/04/07 11:36:38 by strieste         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "BitcoinExchange.hpp"
 
-static int	IsValideDate(std::string const &str);
+// static int	IsValideDate(std::string const &str);
 
 BitcoinExchange::BitcoinExchange()
 {
@@ -87,7 +87,7 @@ BitcoinExchange&	BitcoinExchange::operator=(BitcoinExchange const &copy)
 void	BitcoinExchange::getPrice(std::string const &line)
 {
 	std::string	date;
-	std::string	number;
+	std::string	price;
 	size_t	pipe;
 
 	pipe = line.find('|');
@@ -96,22 +96,48 @@ void	BitcoinExchange::getPrice(std::string const &line)
 		return ;
 	}
 	date = line.substr(0, pipe);
-	number = line.substr(pipe + 1, line.length());
+	price = line.substr(pipe + 1, line.length());
 
-	if (IsValideDate(date) || IsValideNumber(Price))
-	
+	try {
+		IsValideDate(date);
+		IsValideNumber(price);
+	}
+	catch (std::exception& e) {
+		std::cout << e.what() << line << std::endl;
+		return ;
+	}
+	float	floatPrice = std::strtod(price.c_str(), NULL);
+
 }
 
-static int	IsValideDate(std::string date)
+static void	IsValideNumber(std::string price)
 {
+	errno = 0;
+	char	*end;
+	double	DoublePrice = std::strtod(price.c_str(), &end);
+
+	if (errno == ERANGE || end != '\0')
+		throw (std::invalid_argument("Error: Bad input => "));
+	if (DoublePrice < 0)
+		throw (std::invalid_argument("Error: Not a positive price => "));
+	if (DoublePrice >= 1000)
+		throw (std::invalid_argument("Error: Price greater than 1000 => "));
+	return ;
+}
+
+static void	IsValideDate(std::string date)
+{
+	for (int i = 0; i < date.length(); i++)
+		if (!std::isdigit(date[i]) && date[i] != '-')
+			throw (std::invalid_argument("Error: Bad input => "));
+
 	size_t	posOne = date.find('-');
 	size_t	posTwo = date.find(posOne, '-');
 	size_t	posThree = date.find(posTwo, '-');
 
-	if (posOne == std::string::npos || posTwo == std::string::npos || posThree == std::string::npos) {
-		std::cerr << "Error: bad input => " << str << std::endl;
-		return (1);
-	}
+	if (posOne == std::string::npos || posTwo == std::string::npos || posThree == std::string::npos)
+		throw (std::invalid_argument("Error: Bad input => "));
+
 	std::string year = date.substr(0, posOne);
 	std::string month = date.substr(posOne + 1, posTwo);
 	std::string day = date.substr(posTwo + 1, posThree);
@@ -119,25 +145,75 @@ static int	IsValideDate(std::string date)
 	errno = 0;
 	char	*end;
 	long	nbrYear = std::strtol(year.c_str(), &end, 10);
-	if (errno == ERANGE || end != '\0') {
-		std::cerr << "Error: bad input => " << str << std::endl;
-		return (1);
-	}
+	if (errno == ERANGE || end != '\0')
+		throw (std::invalid_argument("Error: Bad input => "));
 	errno = 0;
 	long	nbrMonth = std::strtol(month.c_str(), &end, 10);
-	if (errno == ERANGE || end != '\0') {
-		std::cerr << "Error: bad input => " << str << std::endl;
-		return (1);
-	}
+	if (errno == ERANGE || end != '\0')
+		throw (std::invalid_argument("Error: Bad input => "));
 	errno = 0;
 	long	nbrDay = std::strtol(day.c_str(), &end, 10);
-	if (errno == ERANGE || end != '\0') {
-		std::cerr << "Error: bad input => " << str << std::endl;
+	if (errno == ERANGE || end != '\0')
+		throw (std::invalid_argument("Error: Bad input => "));
+	if (ValideDateRange(nbrYear, nbrMonth, nbrDay))
+		throw (std::invalid_argument("Error: Bad input => "));
+	return ;
+}
+
+static int	ValideDateRange(long nbrYear, long nbrMonth, long nbrDay)
+{
+	if (nbrYear <= 0 || nbrMonth <= 0 || nbrDay <= 0)
 		return (1);
-	}
-	if (ValideDateRange(nbrYear, nbrMonth, nbrDay)) {
-		std::cerr << "Error: bad input => " << str << std::endl;
+	if (nbrMonth > 12 || nbrDay > 31)
 		return (1);
-	}
+	if (nbrMonth == 4 || nbrMonth == 6 || nbrMonth == 9 || nbrMonth == 11)
+		if (nbrDay > 30)
+			return (1);
+	if (nbrYear % 4 == 0 && nbrYear % 100 != 0)
+		if (nbrMonth == 2 && nbrDay > 29)
+			return (1);
+	else if (nbrYear % 4 != 0)
+		if (nbrMonth == 2 && nbrDay > 28)
+			return (1);
 	return (0);
 }
+
+// static int	IsValideDate(std::string date)
+// {
+// 	size_t	posOne = date.find('-');
+// 	size_t	posTwo = date.find(posOne, '-');
+// 	size_t	posThree = date.find(posTwo, '-');
+
+// 	if (posOne == std::string::npos || posTwo == std::string::npos || posThree == std::string::npos) {
+// 		std::cerr << "Error: bad input => " << str << std::endl;
+// 		return (1);
+// 	}
+// 	std::string year = date.substr(0, posOne);
+// 	std::string month = date.substr(posOne + 1, posTwo);
+// 	std::string day = date.substr(posTwo + 1, posThree);
+
+// 	errno = 0;
+// 	char	*end;
+// 	long	nbrYear = std::strtol(year.c_str(), &end, 10);
+// 	if (errno == ERANGE || end != '\0') {
+// 		std::cerr << "Error: bad input => " << str << std::endl;
+// 		return (1);
+// 	}
+// 	errno = 0;
+// 	long	nbrMonth = std::strtol(month.c_str(), &end, 10);
+// 	if (errno == ERANGE || end != '\0') {
+// 		std::cerr << "Error: bad input => " << str << std::endl;
+// 		return (1);
+// 	}
+// 	errno = 0;
+// 	long	nbrDay = std::strtol(day.c_str(), &end, 10);
+// 	if (errno == ERANGE || end != '\0') {
+// 		std::cerr << "Error: bad input => " << str << std::endl;
+// 		return (1);
+// 	}
+// 	if (ValideDateRange(nbrYear, nbrMonth, nbrDay)) {
+// 		std::cerr << "Error: bad input => " << str << std::endl;
+// 		return (1);
+// 	}
+// 	return (0);
+// }
