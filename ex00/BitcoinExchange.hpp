@@ -6,7 +6,7 @@
 /*   By: strieste <strieste@student.42.ch>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/30 09:19:12 by strieste          #+#    #+#             */
-/*   Updated: 2026/04/08 14:22:43 by strieste         ###   ########.fr       */
+/*   Updated: 2026/04/08 18:23:37 by strieste         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ class BitcoinExchange
 		void	getPrice(std::string const &line);
 
 	private:
-		std::map<std::string, float>	_data;
+		std::map<std::string, double>	_data;
 };
 
 #endif

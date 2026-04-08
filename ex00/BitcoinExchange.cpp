@@ -6,7 +6,7 @@
 /*   By: strieste <strieste@student.42.ch>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/30 10:57:12 by strieste          #+#    #+#             */
-/*   Updated: 2026/04/08 14:48:19 by strieste         ###   ########.fr       */
+/*   Updated: 2026/04/08 18:25:17 by strieste         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ BitcoinExchange::BitcoinExchange(std::string const &fileName)
 	std::string	buff;
 	std::string	date;
 	std::string	strPrice;
-	float		floatPrice;
+	double		doublePrice;
 
 	std::ifstream fd(fileName.c_str(), std::ios::in);
 	if (!fd.is_open())
@@ -56,8 +56,8 @@ BitcoinExchange::BitcoinExchange(std::string const &fileName)
 		size_t	pos = buff.find(',');
 		date = buff.substr(0, pos);
 		strPrice = buff.substr(pos + 1, buff.length());
-		floatPrice = std::strtof(strPrice.c_str(), NULL);
-		_data[date] = floatPrice;
+		doublePrice = std::strtod(strPrice.c_str(), NULL);
+		_data[date] = doublePrice;
 	}
 	fd.close();
 	return ;
@@ -106,8 +106,8 @@ void	BitcoinExchange::getPrice(std::string const &line)
 		std::cout << e.what() << line << std::endl;
 		return ;
 	}
-	float	floatNumber = std::strtof(number.c_str(), NULL);
-	std::map<std::string, float>::iterator	itLow;
+	double	doubleNumber = std::strtod(number.c_str(), NULL);
+	std::map<std::string, double>::iterator	itLow;
 	itLow = _data.lower_bound(date);
 	// std::cout << std::endl;
 	if (itLow->first != date && itLow != _data.begin())
@@ -115,9 +115,9 @@ void	BitcoinExchange::getPrice(std::string const &line)
 	// std::cout << "DEBUG INPUT:" << date << ": :" << floatNumber << ":" << std::endl;
 	// std::cout << "DEBUG:" << itLow->first << ": :" << itLow->second << std::endl;
 	// float val = static_cast<float>(itLow->second);
-	float result = floatNumber * static_cast<float>(itLow->second);
+	double result = doubleNumber * static_cast<double>(itLow->second);
 	// std::cout << "DEBUG::" << date << " => " << floatNumber << " = " << result << std::endl;
-	std::cout << date << " => " << floatNumber << " = "  << std::fixed << std::setprecision(2) << result << std::endl;
+	std::cout << date << " => " << doubleNumber << " = "  << std::fixed << std::setprecision(2) << result << std::endl;
 	// std::cout << "DEBUG:" << val << std::endl;
 	// std::cout << std::endl;
 }
