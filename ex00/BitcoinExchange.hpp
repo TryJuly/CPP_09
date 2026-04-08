@@ -6,7 +6,7 @@
 /*   By: strieste <strieste@student.42.ch>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/30 09:19:12 by strieste          #+#    #+#             */
-/*   Updated: 2026/04/07 11:21:36 by strieste         ###   ########.fr       */
+/*   Updated: 2026/04/08 14:22:43 by strieste         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,10 @@
 # include <fstream>
 # include <cstdlib>
 # include <iostream>
+// # include <limits>
+# include <iomanip>
 // # include <iostream>
-// # include <algorithm>
+# include <algorithm>
 
 class BitcoinExchange
 {

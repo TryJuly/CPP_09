@@ -6,13 +6,15 @@
 /*   By: strieste <strieste@student.42.ch>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/30 10:57:12 by strieste          #+#    #+#             */
-/*   Updated: 2026/04/07 11:36:38 by strieste         ###   ########.fr       */
+/*   Updated: 2026/04/08 14:48:19 by strieste         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "BitcoinExchange.hpp"
 
-// static int	IsValideDate(std::string const &str);
+static void	IsValideDate(std::string date);
+static void	IsValideNumber(std::string number);
+static int	ValideDateRange(long nbrYear, long nbrMonth, long nbrDay);
 
 BitcoinExchange::BitcoinExchange()
 {
@@ -24,7 +26,7 @@ BitcoinExchange::BitcoinExchange()
 
 	std::ifstream fd(fileName.c_str(), std::ios::in);
 	if (!fd.is_open())
-		throw (std::invalid_argument("Error: Could not open data file"));
+		throw (std::invalid_argument("Error: Could not open data file."));
 	while (!fd.eof())
 	{
 		std::getline(fd, buff);
@@ -47,7 +49,7 @@ BitcoinExchange::BitcoinExchange(std::string const &fileName)
 
 	std::ifstream fd(fileName.c_str(), std::ios::in);
 	if (!fd.is_open())
-		throw (std::invalid_argument("Error: Could not open data file"));
+		throw (std::invalid_argument("Error: Could not open data file."));
 	while (!fd.eof())
 	{
 		std::getline(fd, buff);
@@ -60,7 +62,6 @@ BitcoinExchange::BitcoinExchange(std::string const &fileName)
 	fd.close();
 	return ;
 }
-
 
 BitcoinExchange::BitcoinExchange(BitcoinExchange const &copy)
 {
@@ -87,7 +88,7 @@ BitcoinExchange&	BitcoinExchange::operator=(BitcoinExchange const &copy)
 void	BitcoinExchange::getPrice(std::string const &line)
 {
 	std::string	date;
-	std::string	price;
+	std::string	number;
 	size_t	pipe;
 
 	pipe = line.find('|');
@@ -95,65 +96,71 @@ void	BitcoinExchange::getPrice(std::string const &line)
 		std::cout << "Error: Bad input => " << line << std::endl;
 		return ;
 	}
-	date = line.substr(0, pipe);
-	price = line.substr(pipe + 1, line.length());
-
+	date = line.substr(0, pipe - 1);
+	number = line.substr(pipe + 1, line.length());
 	try {
 		IsValideDate(date);
-		IsValideNumber(price);
+		IsValideNumber(number);
 	}
 	catch (std::exception& e) {
 		std::cout << e.what() << line << std::endl;
 		return ;
 	}
-	float	floatPrice = std::strtod(price.c_str(), NULL);
-
+	float	floatNumber = std::strtof(number.c_str(), NULL);
+	std::map<std::string, float>::iterator	itLow;
+	itLow = _data.lower_bound(date);
+	// std::cout << std::endl;
+	if (itLow->first != date && itLow != _data.begin())
+		itLow--;
+	// std::cout << "DEBUG INPUT:" << date << ": :" << floatNumber << ":" << std::endl;
+	// std::cout << "DEBUG:" << itLow->first << ": :" << itLow->second << std::endl;
+	// float val = static_cast<float>(itLow->second);
+	float result = floatNumber * static_cast<float>(itLow->second);
+	// std::cout << "DEBUG::" << date << " => " << floatNumber << " = " << result << std::endl;
+	std::cout << date << " => " << floatNumber << " = "  << std::fixed << std::setprecision(2) << result << std::endl;
+	// std::cout << "DEBUG:" << val << std::endl;
+	// std::cout << std::endl;
 }
 
-static void	IsValideNumber(std::string price)
+static void	IsValideNumber(std::string number)
 {
 	errno = 0;
 	char	*end;
-	double	DoublePrice = std::strtod(price.c_str(), &end);
+	double	doubleNumber = std::strtod(number.c_str(), &end);
 
-	if (errno == ERANGE || end != '\0')
+	if (errno == ERANGE || *end != '\0')
 		throw (std::invalid_argument("Error: Bad input => "));
-	if (DoublePrice < 0)
-		throw (std::invalid_argument("Error: Not a positive price => "));
-	if (DoublePrice >= 1000)
-		throw (std::invalid_argument("Error: Price greater than 1000 => "));
+	if (doubleNumber < 0)
+		throw (std::invalid_argument("Error: Not a positive number => "));
+	if (doubleNumber >= 1000)
+		throw (std::invalid_argument("Error: Too large number => "));
 	return ;
 }
 
 static void	IsValideDate(std::string date)
 {
-	for (int i = 0; i < date.length(); i++)
-		if (!std::isdigit(date[i]) && date[i] != '-')
+	for (size_t i = 0; i < date.length(); i++)
+		if (!std::isdigit(date[i]) && date[i] != '-') {
+			std::cout << "DEBUG::" << date << ":" << std::endl;
 			throw (std::invalid_argument("Error: Bad input => "));
+		}
 
-	size_t	posOne = date.find('-');
-	size_t	posTwo = date.find(posOne, '-');
-	size_t	posThree = date.find(posTwo, '-');
-
-	if (posOne == std::string::npos || posTwo == std::string::npos || posThree == std::string::npos)
-		throw (std::invalid_argument("Error: Bad input => "));
-
-	std::string year = date.substr(0, posOne);
-	std::string month = date.substr(posOne + 1, posTwo);
-	std::string day = date.substr(posTwo + 1, posThree);
+	std::string year = date.substr(0, 4);
+	std::string month = date.substr(5, 2);
+	std::string day = date.substr(8, 2);
 
 	errno = 0;
 	char	*end;
 	long	nbrYear = std::strtol(year.c_str(), &end, 10);
-	if (errno == ERANGE || end != '\0')
+	if (errno == ERANGE || *end != '\0')
 		throw (std::invalid_argument("Error: Bad input => "));
 	errno = 0;
 	long	nbrMonth = std::strtol(month.c_str(), &end, 10);
-	if (errno == ERANGE || end != '\0')
+	if (errno == ERANGE || *end != '\0')
 		throw (std::invalid_argument("Error: Bad input => "));
 	errno = 0;
 	long	nbrDay = std::strtol(day.c_str(), &end, 10);
-	if (errno == ERANGE || end != '\0')
+	if (errno == ERANGE || *end != '\0')
 		throw (std::invalid_argument("Error: Bad input => "));
 	if (ValideDateRange(nbrYear, nbrMonth, nbrDay))
 		throw (std::invalid_argument("Error: Bad input => "));
@@ -166,54 +173,17 @@ static int	ValideDateRange(long nbrYear, long nbrMonth, long nbrDay)
 		return (1);
 	if (nbrMonth > 12 || nbrDay > 31)
 		return (1);
-	if (nbrMonth == 4 || nbrMonth == 6 || nbrMonth == 9 || nbrMonth == 11)
+	if (nbrMonth == 4 || nbrMonth == 6 || nbrMonth == 9 || nbrMonth == 11) {
 		if (nbrDay > 30)
 			return (1);
-	if (nbrYear % 4 == 0 && nbrYear % 100 != 0)
+	}
+	if (nbrYear % 4 == 0 && nbrYear % 100 != 0) {
 		if (nbrMonth == 2 && nbrDay > 29)
 			return (1);
-	else if (nbrYear % 4 != 0)
+	}
+	else if (nbrYear % 4 != 0) {
 		if (nbrMonth == 2 && nbrDay > 28)
 			return (1);
+	}
 	return (0);
 }
-
-// static int	IsValideDate(std::string date)
-// {
-// 	size_t	posOne = date.find('-');
-// 	size_t	posTwo = date.find(posOne, '-');
-// 	size_t	posThree = date.find(posTwo, '-');
-
-// 	if (posOne == std::string::npos || posTwo == std::string::npos || posThree == std::string::npos) {
-// 		std::cerr << "Error: bad input => " << str << std::endl;
-// 		return (1);
-// 	}
-// 	std::string year = date.substr(0, posOne);
-// 	std::string month = date.substr(posOne + 1, posTwo);
-// 	std::string day = date.substr(posTwo + 1, posThree);
-
-// 	errno = 0;
-// 	char	*end;
-// 	long	nbrYear = std::strtol(year.c_str(), &end, 10);
-// 	if (errno == ERANGE || end != '\0') {
-// 		std::cerr << "Error: bad input => " << str << std::endl;
-// 		return (1);
-// 	}
-// 	errno = 0;
-// 	long	nbrMonth = std::strtol(month.c_str(), &end, 10);
-// 	if (errno == ERANGE || end != '\0') {
-// 		std::cerr << "Error: bad input => " << str << std::endl;
-// 		return (1);
-// 	}
-// 	errno = 0;
-// 	long	nbrDay = std::strtol(day.c_str(), &end, 10);
-// 	if (errno == ERANGE || end != '\0') {
-// 		std::cerr << "Error: bad input => " << str << std::endl;
-// 		return (1);
-// 	}
-// 	if (ValideDateRange(nbrYear, nbrMonth, nbrDay)) {
-// 		std::cerr << "Error: bad input => " << str << std::endl;
-// 		return (1);
-// 	}
-// 	return (0);
-// }
