@@ -6,7 +6,7 @@
 /*   By: strieste <strieste@student.42.ch>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/09 09:43:19 by strieste          #+#    #+#             */
-/*   Updated: 2026/04/09 15:07:55 by strieste         ###   ########.fr       */
+/*   Updated: 2026/04/09 19:37:01 by strieste         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,10 +59,10 @@ void	RPN::getResult(std::string const &str)
 			_stack.push(res);
 		}
 		else if (SetOperator(str[i]))
-			throw (std::invalid_argument("Error: Invalde input."));
+			throw (std::invalid_argument("Error: Invalde input => "));
 	}
 	if (_stack.size() > 1)
-		throw (std::invalid_argument("Error: Invalde input."));
+		throw (std::invalid_argument("Error: Invalde input => "));
 	std::cout << _stack.top() << std::endl;
 	return ;
 }

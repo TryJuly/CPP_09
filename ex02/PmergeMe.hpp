@@ -6,20 +6,24 @@
 /*   By: strieste <strieste@student.42.ch>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/30 09:13:22 by strieste          #+#    #+#             */
-/*   Updated: 2026/04/09 14:36:25 by strieste         ###   ########.fr       */
+/*   Updated: 2026/04/09 19:48:15 by strieste         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PMERGEME_HPP
 # define PMERGEME_HPP
 
+# include <deque>
+# include <vector>
+
 class PmergeMe
 {
 	public:
 		
-	
+
 	private:
-		
+		std::deque<int>	_deque;
+		std::vector<int>	_vector;
 };
 
 
