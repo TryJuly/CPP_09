@@ -6,7 +6,7 @@
 /*   By: strieste <strieste@student.42.ch>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/30 10:57:12 by strieste          #+#    #+#             */
-/*   Updated: 2026/04/08 18:25:17 by strieste         ###   ########.fr       */
+/*   Updated: 2026/04/09 08:40:12 by strieste         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ BitcoinExchange::BitcoinExchange()
 	std::string	buff;
 	std::string	date;
 	std::string	strPrice;
-	float		floatPrice;
+	double		doublePrice;
 
 	std::ifstream fd(fileName.c_str(), std::ios::in);
 	if (!fd.is_open())
@@ -33,8 +33,8 @@ BitcoinExchange::BitcoinExchange()
 		size_t	pos = buff.find(',');
 		date = buff.substr(0, pos);
 		strPrice = buff.substr(pos + 1, buff.length());
-		floatPrice = std::strtof(strPrice.c_str(), NULL);
-		_data[date] = floatPrice;
+		doublePrice = std::strtod(strPrice.c_str(), NULL);
+		_data[date] = doublePrice;
 	}
 	fd.close();
 	return ;
@@ -109,17 +109,11 @@ void	BitcoinExchange::getPrice(std::string const &line)
 	double	doubleNumber = std::strtod(number.c_str(), NULL);
 	std::map<std::string, double>::iterator	itLow;
 	itLow = _data.lower_bound(date);
-	// std::cout << std::endl;
 	if (itLow->first != date && itLow != _data.begin())
 		itLow--;
-	// std::cout << "DEBUG INPUT:" << date << ": :" << floatNumber << ":" << std::endl;
-	// std::cout << "DEBUG:" << itLow->first << ": :" << itLow->second << std::endl;
-	// float val = static_cast<float>(itLow->second);
 	double result = doubleNumber * static_cast<double>(itLow->second);
-	// std::cout << "DEBUG::" << date << " => " << floatNumber << " = " << result << std::endl;
-	std::cout << date << " => " << doubleNumber << " = "  << std::fixed << std::setprecision(2) << result << std::endl;
-	// std::cout << "DEBUG:" << val << std::endl;
-	// std::cout << std::endl;
+	std::cout << date << " => " << doubleNumber << " = "  << std::fixed << std::setprecision(3) << result << std::endl;
+	return ;
 }
 
 static void	IsValideNumber(std::string number)
@@ -130,7 +124,7 @@ static void	IsValideNumber(std::string number)
 
 	if (errno == ERANGE || *end != '\0')
 		throw (std::invalid_argument("Error: Bad input => "));
-	if (doubleNumber < 0)
+	if (doubleNumber <= 0)
 		throw (std::invalid_argument("Error: Not a positive number => "));
 	if (doubleNumber >= 1000)
 		throw (std::invalid_argument("Error: Too large number => "));

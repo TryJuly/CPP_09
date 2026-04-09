@@ -6,7 +6,7 @@
 /*   By: strieste <strieste@student.42.ch>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/08 14:59:39 by strieste          #+#    #+#             */
-/*   Updated: 2026/04/08 15:37:05 by strieste         ###   ########.fr       */
+/*   Updated: 2026/04/09 10:46:12 by strieste         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,9 @@ int	main(int ac, char **av)
 		if (ac != 2)
 			throw (std::invalid_argument("Error: Bad input."));
 		CheckInput(av[1]);
+		RPN	myReversePolish;
+
+		myReversePolish.getResult(av[1]);
 	}
 	catch(const std::exception& e) {
 		std::cerr << e.what() << std::endl;
