@@ -6,7 +6,7 @@
 /*   By: strieste <strieste@student.42.ch>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/03/30 09:13:22 by strieste          #+#    #+#             */
-/*   Updated: 2026/04/09 19:48:15 by strieste         ###   ########.fr       */
+/*   Updated: 2026/04/10 15:06:16 by strieste         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,11 +20,9 @@ class PmergeMe
 {
 	public:
 		
-
 	private:
-		std::deque<int>	_deque;
-		std::vector<int>	_vector;
+		std::deque<int, int>	_deque;
+		std::vector<int, int>	_vector;
 };
-
 
 #endif
