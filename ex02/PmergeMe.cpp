@@ -6,7 +6,7 @@
 /*   By: strieste <strieste@student.42.ch>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/16 07:13:26 by strieste          #+#    #+#             */
-/*   Updated: 2026/04/17 16:12:12 by strieste         ###   ########.fr       */
+/*   Updated: 2026/04/22 17:36:12 by strieste         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,13 @@ PmergeMe::PmergeMe()
 	_hasLast = 0;
 	return ;
 }
+
+PmergeMe::PmergeMe(std::vector<int> vector)
+{
+	_size = vector.size();
+	return ;
+}
+
 
 PmergeMe::PmergeMe(PmergeMe const &copy)
 {
@@ -50,27 +57,117 @@ PmergeMe&	PmergeMe::operator=(PmergeMe const &copy)
 std::vector<int>	PmergeMe::getVector() const
 { return (_vector); }
 
-// static bool	Compare(std::pair<int, int> a, std::pair<int, int> b)
-// { return (a.second < b.second); }
+static void	SortDequePairs(std::deque<std::pair<int, int> > &dequePairs);
 
-// void	PmergeMe::StartDeque(std::vector<int> tab)
-// {}
+void	PmergeMe::StartDeque(std::vector<int> tab)
+{
+	// size_t	size = tab.size();
+
+	if (_size < 1)
+		return ;
+	else if (_size % 2 == 0) {
+		for (size_t	i = 0; i < _size; i += 2)
+			_dequePairs.push_back(std::make_pair(tab[i], tab[i+1]));
+		_hasLast = false;
+	}
+	else {
+		for (size_t i = 0; i < _size - 1; i += 2)
+			_dequePairs.push_back(std::make_pair(tab[i], tab[i+1]));
+		_last = tab[_size - 1];
+		_hasLast = true;
+	}
+
+	size_t	sizePairs = _dequePairs.size();
+
+	for (size_t i = 0; i < sizePairs; i++) {
+		if (_dequePairs[i].first > _dequePairs[i].second)
+			std::swap(_dequePairs[i].first, _dequePairs[i].second);
+	}
+
+	SortDequePairs(_dequePairs);
+
+	for (size_t i = 0; i < sizePairs; i++)
+		_deque.push_back(_dequePairs[i].second);
+	_deque.insert(_deque.begin(), _dequePairs[0].first);
+
+	size_t	current = 3;
+	size_t	prev = 1;
+	size_t	next;
+	std::deque<int>::iterator	posIterator;
+	while (current <= sizePairs) {
+		for (size_t index = current; index > prev; index--) {
+			if ((index - 1) >= sizePairs)
+				continue ;
+			posIterator = std::lower_bound(_deque.begin(), _deque.end(), _dequePairs[index - 1].first);
+			_deque.insert(posIterator, _dequePairs[index - 1].first);
+		}
+		next = current + (2 * prev);
+		prev = current;
+		current = next;
+	}
+	if (prev < sizePairs) {
+		for (size_t index = sizePairs; index > prev; index--) {
+			posIterator = std::lower_bound(_deque.begin(), _deque.end(), _dequePairs[index - 1].first);
+			_deque.insert(posIterator, _dequePairs[index - 1].first);
+		}
+	}
+	if (_hasLast == true) {
+		posIterator = std::lower_bound(_deque.begin(), _deque.end(), _last);
+		_deque.insert(posIterator, _last);
+	}
+	return ;
+}
+
+static void	SortDequePairs(std::deque<std::pair<int, int> > &dequePairs)
+{
+	size_t	size = dequePairs.size();
+	if (size <= 1)
+	return ;
+	std::deque<std::pair<int, int> > left;
+	std::deque<std::pair<int, int> > right;
+	for (size_t	i = 0; (i < size / 2); i++)
+		left.push_back(dequePairs[i]);
+	for (size_t i = (size / 2); i < size; i++)
+		right.push_back(dequePairs[i]);
+	SortDequePairs(left);
+	SortDequePairs(right);
+	dequePairs.clear();
+	size_t	i = 0;
+	size_t	j = 0;
+	while (i < left.size() && j < right.size()) {
+		if (left[i].second < right[j].second) {
+			dequePairs.push_back(left[i]);
+			i++;
+		}
+		else {
+			dequePairs.push_back(right[j]);
+			j++;
+		}
+	}
+	for (size_t count = i; count < left.size(); count++)
+		dequePairs.push_back(left[count]);
+	for (size_t count = j; count < right.size(); count++)
+		dequePairs.push_back(right[count]);
+	return ;
+}
 
 static void	SortVectorPairs(std::vector<std::pair<int, int> > &vectorPairs);
 
 void	PmergeMe::StartVector(std::vector<int> tab)
 {
-	size_t	size = tab.size();
+	// size_t	size = tab.size();
 
-	if (size % 2 == 0) {
-		for (size_t	i = 0; i < size; i += 2)
+	if (_size == 1)
+		return ;
+	else if (_size % 2 == 0) {
+		for (size_t	i = 0; i < _size; i += 2)
 			_vectorPairs.push_back(std::make_pair(tab[i], tab[i+1]));
 		_hasLast = false;
 	}
 	else {
-		for (size_t i = 0; i < size - 1; i += 2)
+		for (size_t i = 0; i < _size - 1; i += 2)
 			_vectorPairs.push_back(std::make_pair(tab[i], tab[i+1]));
-		_last = tab[size - 1];
+		_last = tab[_size - 1];
 		_hasLast = true;
 	}
 
@@ -99,6 +196,7 @@ void	PmergeMe::StartVector(std::vector<int> tab)
 			posIterator = std::lower_bound(_vector.begin(), _vector.end(), _vectorPairs[index - 1].first);
 			_vector.insert(posIterator, _vectorPairs[index - 1].first);
 		}
+		// posIteratorPrev = posIteratorCurr;
 		next = current + (2 * prev);
 		prev = current;
 		current = next;
